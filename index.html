@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IT Asset Register</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f0;--surf:#fff;--ink:#17262b;--mute:#5b6b70;--line:#d3dbdb;--acc:#1f5f7a;--accink:#fff;--ok:#2f7d57;--warn:#a86a12;--bad:#b23a3a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181b;--surf:#18232736;--ink:#e6eeee;--mute:#93a5a9;--line:#2b3b40;--acc:#6bb6d3;--accink:#0b1417;--ok:#6fcf9b;--warn:#e0a54f;--bad:#ee8a8a}}
+:root[data-theme="dark"]{--bg:#10181b;--surf:#182327;--ink:#e6eeee;--mute:#93a5a9;--line:#2b3b40;--acc:#6bb6d3;--accink:#0b1417;--ok:#6fcf9b;--warn:#e0a54f;--bad:#ee8a8a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:24px;margin:0 0 2px;font-weight:600;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 18px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0;border:1px solid var(--line);background:var(--surf);border-radius:6px;margin-bottom:16px}
+.stat{padding:12px 14px;border-right:1px solid var(--line)}.stat:last-child{border-right:0}
+.stat b{display:block;font-size:22px;font-weight:600}.stat span{color:var(--mute);font-size:13px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+input,select,button,textarea{font:inherit;color:var(--ink)}
+input,select{background:var(--surf);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}
+.scan{flex:1 1 280px}
+button{background:var(--surf);border:1px solid var(--line);border-radius:6px;padding:8px 14px;cursor:pointer}
+button.p{background:var(--acc);color:var(--accink);border-color:var(--acc);font-weight:500}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surf)}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:500;color:var(--mute);font-size:13px}tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer}tbody tr:hover{background:color-mix(in srgb,var(--acc) 8%,transparent)}
+.tag{font-variant-numeric:tabular-nums;font-weight:600}
+.st{padding:2px 8px;border-radius:10px;font-size:12px;border:1px solid currentColor}
+.st.u{color:var(--acc)}.st.s{color:var(--ok)}.st.r{color:var(--warn)}.st.x{color:var(--mute)}.st.l{color:var(--bad)}
+.exp{color:var(--bad)}.soon{color:var(--warn)}
+.empty{padding:28px;text-align:center;color:var(--mute)}
+dialog{border:1px solid var(--line);border-radius:8px;background:var(--surf);color:var(--ink);padding:0;width:min(560px,94vw)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dh{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:600}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;padding:16px 18px}
+.dg label{display:flex;flex-direction:column;font-size:13px;color:var(--mute);gap:3px}
+.dg .w{grid-column:1/-1}
+.lab{margin:0 18px 14px;padding:10px;border:1px dashed var(--line);border-radius:6px;text-align:center;background:#fff;color:#000}
+.lab svg{max-width:100%;height:auto}.lab div{font-size:12px}
+.df{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line);flex-wrap:wrap}.df .sp{flex:1}
+#pl{display:none}
+textarea{background:var(--surf);border:1px solid var(--line);border-radius:6px;padding:8px 10px;resize:vertical}
+.hist{margin:0 18px 14px;font-size:13px}.hr{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}.hr button{padding:2px 10px;font-size:12px}.ok{color:var(--ok)}.pn{color:var(--warn)}
+.pf{max-width:170mm;margin:0 auto;text-align:left;color:#000;background:#fff;font-size:13px}.pf h2{margin:0 0 4px}.pf table{width:100%;min-width:0;border:1px solid #000;margin:10px 0}.pf th,.pf td{border:1px solid #000;padding:6px 8px;color:#000;white-space:normal}.pf th{width:32%;background:#eee;font-weight:600}.sig{display:flex;gap:24px;margin-top:48px}.sig div{flex:1;border-top:1px solid #000;padding-top:4px}
+.lock .wrap{display:none}
+#lg{display:none;position:fixed;inset:0;z-index:50;background:var(--bg);align-items:center;justify-content:center;padding:16px}.lock #lg{display:flex}
+.lc{width:min(380px,100%);background:var(--surf);border:1px solid var(--line);border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:12px}.lc label{display:flex;flex-direction:column;font-size:13px;color:var(--mute);gap:3px}.lc .sub{margin:0}
+.ub{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;color:var(--mute);flex-wrap:wrap}.ub .sp{flex:1}
+.ro #imp,.ro #add,.ro #sv,.ro #del,.ro #iss,.ro #ret,.ro #hs,.ro #hp,.ro #hpo,.ro .hist button[data-k="s"],.ro .hist button[data-k="m"]{display:none!important}
+@media print{body{background:#fff!important}}
+@media print{body>*{display:none!important}body>#pl{display:block!important;text-align:center;padding:12mm}}
+@media (max-width:520px){.dg{grid-template-columns:1fr}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body class="lock">
+<div id="lg"><div class="lc"><h1 id="lg_t">Sign in</h1><p class="sub" id="lg_s">IT Asset Register</p>
+<label>Username<input id="lg_u" autocomplete="username"></label>
+<label>Password<input id="lg_p" type="password" autocomplete="current-password"></label>
+<label id="lg_cw">Confirm password<input id="lg_c" type="password" autocomplete="new-password"></label>
+<div class="exp" id="lg_e" role="alert"></div>
+<button class="p" id="lg_go" type="button">Sign in</button>
+<p class="sub" style="font-size:12px">Accounts are kept in this browser only. This is a simple front door, not a secure server login.</p></div></div>
+<div class="wrap">
+<div class="ub"><span id="who"></span><span class="sp"></span><button id="usr" type="button">Manage users</button><button id="out" type="button">Sign out</button></div>
+<h1>IT Asset Register</h1>
+<p class="sub">Track every device by its asset tag. Scan a barcode into the search box to open that asset.</p>
+<div class="stats" id="stats"></div>
+<div class="bar">
+<input class="scan" id="q" placeholder="Scan barcode or search tag, name, user" autofocus>
+<select id="fs"><option value="">All statuses</option></select>
+<button class="p" id="add">Add asset</button>
+<button id="imp">Import CSV</button>
+<button id="pa">Print In use forms</button>
+<button id="xl">Export to Excel</button>
+<button id="csv">Copy as CSV</button>
+</div>
+<div class="tw"><table><thead><tr><th>Asset tag</th><th>Device</th><th>Category</th><th>Assigned to</th><th>Location</th><th>Status</th><th>Warranty ends</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="empty" hidden>No assets match. Clear the search or add a new asset.</div></div>
+</div>
+
+<dialog id="dlg"><div class="dh" id="dt"></div>
+<div class="dg">
+<label>Asset tag<input id="f_tag"></label>
+<label>Status<select id="f_status"></select></label>
+<label class="w">Device name<input id="f_name"></label>
+<label>Category<select id="f_cat"></select></label>
+<label>Brand / model<input id="f_model"></label>
+<label>Serial number<input id="f_serial"></label>
+<label>Assigned to<input id="f_user" placeholder="Leave empty if unassigned"></label>
+<label>Location / department<input id="f_loc"></label>
+<label>Purchase date<input type="date" id="f_buy"></label>
+<label>Warranty ends<input type="date" id="f_war"></label>
+</div>
+<div class="lab"><div id="bc"></div></div>
+<div class="hist" id="hist"></div>
+<div class="df"><button id="del" type="button">Delete</button><span class="sp"></span><button id="hf" type="button">Print handover form</button><button id="iss" type="button">Issue to user</button><button id="ret" type="button">Return to IT</button><button id="prt" type="button">Print label</button><button id="cx" type="button">Cancel</button><button class="p" id="sv" type="button">Save asset</button></div>
+</dialog>
+<dialog id="im"><div class="dh">Import assets from CSV or Excel</div>
+<div style="padding:14px 18px 0;font-size:13px;color:var(--mute)">Pick a .csv or .xlsx file with a header row in the first line. Columns read: Asset tag, Device name, Category, Brand / model, Serial number, Assigned to, Location / department, Status, Purchase date, Warranty ends. Asset tag and Device name are required. Dates can be 2025-03-01 or 01/03/2025 (day first).</div>
+<div class="dg"><label class="w">File<input type="file" id="imf" accept=".csv,.xlsx,.xls"></label><label class="w">If the asset tag already exists<select id="imm"><option value="skip">Skip it</option><option value="upd">Update it</option></select></label></div>
+<div class="hist" id="imr"></div>
+<div class="df"><button id="imt" type="button">Copy template</button><span class="sp"></span><button id="imc" type="button">Close</button><button class="p" id="imgo" type="button" disabled>Import</button></div></dialog>
+<dialog id="ud"><div class="dh">Manage users</div><div class="hist" id="ul" style="margin:12px 18px"></div>
+<div class="dg"><label>Username<input id="nu"></label><label>Role<select id="nr"><option value="staff">IT staff</option><option value="viewer">Viewer (read only)</option><option value="admin">Admin</option></select></label>
+<label class="w">Password (at least 8 characters)<input id="np" type="password" autocomplete="new-password"></label></div>
+<div class="df"><span class="sp"></span><button id="uc" type="button">Close</button><button class="p" id="ua" type="button">Add user</button></div></dialog>
+<dialog id="hd"><div class="dh" id="hdt"></div>
+<div class="dg">
+<label>Name of user<input id="h_who"></label>
+<label>User email<input id="h_email" type="email" placeholder="name@company.com"></label>
+<label>Department<input id="h_dept"></label>
+<label>Date<input type="date" id="h_date"></label>
+<label>Condition<select id="h_cond"><option>Good</option><option>Minor damage</option><option>Damaged</option><option>Missing accessories</option></select></label>
+<label class="w">Accessories and notes<textarea id="h_note" rows="2" placeholder="Charger, bag, mouse, other items"></textarea></label>
+<label class="w">IT staff name<input id="h_by"></label>
+</div>
+<div class="df"><span class="sp"></span><button id="hcx" type="button">Cancel</button><button id="hpo" type="button">Print only</button><button id="hs" type="button">Save handover</button><button class="p" id="hp" type="button">Save and print form</button></div></dialog>
+<div id="pl"></div>
+
+<script>
+var ST=["In use","In stock","In repair","Retired","Lost"],SC={"In use":"u","In stock":"s","In repair":"r","Retired":"x","Lost":"l"};
+var CAT=["Laptop","Desktop","Monitor","Phone","Server","Network","Printer","Other"];
+var KEY="itam.v1",A=[],cur=null;
+function sample(){return[
+["AST-0001","Dell Latitude 5440","Laptop","Dell Latitude 5440","DL5440X01","Rina Putri","Finance","In use","2024-02-10","2027-02-10"],
+["AST-0002","LG 27 inch monitor","Monitor","LG 27UL500","LG27UL5002","Budi Santoso","HR","In use","2023-06-01","2026-06-01"],
+["AST-0003","Cisco switch 24 port","Network","Cisco CBS250-24","CS24P8810","","Server room","In stock","2025-01-15","2028-01-15"],
+["AST-0004","HP LaserJet printer","Printer","HP M404dn","HPM404Z77","","Floor 2","In repair","2022-09-20","2026-12-01"]
+].map(function(r){return{tag:r[0],name:r[1],cat:r[2],model:r[3],serial:r[4],user:r[5],loc:r[6],status:r[7],buy:r[8],war:r[9]}})}
+function load(){try{var s=localStorage.getItem(KEY);if(s)A=JSON.parse(s)}catch(e){}if(!A.length)A=sample()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(A))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function days(d){return d?Math.round((new Date(d)-new Date())/864e5):null}
+
+/* Code 128-B barcode */
+var P="212222 222122 222221 121223 121322 131222 122213 122312 132212 221213 221312 231212 112232 122132 122231 113222 123122 123221 223211 221132 221231 213212 223112 312131 311222 321122 321221 312212 322112 322211 212123 212321 232121 111323 131123 131321 112313 132113 132311 211313 231113 231311 112133 112331 132131 113123 113321 133121 313121 211331 231131 213113 213311 213131 311123 311321 331121 312113 312311 332111 314111 221411 431111 111224 111422 121124 121421 141122 141221 112214 112412 122114 122411 142112 142211 241211 221114 413111 241112 134111 111242 121142 121241 114212 124112 124211 411212 421112 421211 212141 214121 412121 111143 111341 131141 114113 114311 411113 411311 113141 114131 311141 411131 211412 211214 211232 2331112".split(" ");
+function barcode(t){
+ t=String(t||"").replace(/[^\x20-\x7e]/g,"");if(!t)return"";
+ var v=[104],sum=104,i;
+ for(i=0;i<t.length;i++){var c=t.charCodeAt(i)-32;v.push(c);sum+=c*(i+1)}
+ v.push(sum%103);v.push(106);
+ var x=10,w=2,h=60,r="";
+ v.forEach(function(k){var p=P[k];for(var j=0;j<p.length;j++){var n=+p[j]*w;if(j%2==0)r+='<rect x="'+x+'" y="0" width="'+n+'" height="'+h+'" fill="#000"/>';x+=n}});
+ var W=x+10;
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+h+'" width="'+W+'" height="'+h+'" role="img" aria-label="Barcode '+esc(t)+'"><rect width="'+W+'" height="'+h+'" fill="#fff"/>'+r+'</svg>';
+}
+function labelHTML(a){return barcode(a.tag)+'<div><b>'+esc(a.tag)+'</b> '+esc(a.name)+'</div>'}
+
+function stats(){
+ var n=function(s){return A.filter(function(a){return a.status==s}).length};
+ var soon=A.filter(function(a){var d=days(a.war);return d!==null&&d<=60&&a.status!="Retired"&&a.status!="Lost"}).length;
+ var items=[[A.length,"Total assets"],[n("In use"),"In use"],[n("In stock"),"In stock"],[n("In repair"),"In repair"],[soon,"Warranty ending or ended"],[A.reduce(function(s,a){return s+(a.log||[]).filter(function(e){return !e.signed}).length},0),"Forms awaiting signature"]];
+ $("stats").innerHTML=items.map(function(i){return'<div class="stat"><b>'+i[0]+'</b><span>'+i[1]+'</span></div>'}).join("");
+}
+function list(){
+ var q=$("q").value.trim().toLowerCase(),fs=$("fs").value;
+ var L=A.filter(function(a){
+  if(fs&&a.status!=fs)return false;
+  return !q||[a.tag,a.name,a.user,a.serial,a.loc,a.model].join(" ").toLowerCase().indexOf(q)>-1});
+ $("rows").innerHTML=L.map(function(a){
+  var d=days(a.war),wc=d===null?"":d<0?"exp":d<=60?"soon":"";
+  return'<tr data-t="'+esc(a.tag)+'"><td class="tag">'+esc(a.tag)+'</td><td>'+esc(a.name)+'</td><td>'+esc(a.cat)+'</td><td>'+(esc(a.user)||"Unassigned")+'</td><td>'+esc(a.loc)+'</td><td><span class="st '+SC[a.status]+'">'+esc(a.status)+'</span></td><td class="'+wc+'">'+(esc(a.war)||"No date")+'</td></tr>'}).join("");
+ $("empty").hidden=L.length>0;stats();
+}
+function nextTag(){var m=0;A.forEach(function(a){var n=parseInt(String(a.tag).replace(/\D/g,""),10);if(n>m)m=n});return"AST-"+String(m+1).padStart(4,"0")}
+var F=["tag","name","model","serial","user","loc","buy","war"];
+function open(a){
+ cur=a;var n=!a;a=a||{tag:nextTag(),name:"",cat:"Laptop",model:"",serial:"",user:"",loc:"",status:"In stock",buy:"",war:""};
+ $("dt").textContent=n?"Add asset":"Edit "+a.tag;
+ F.forEach(function(k){$("f_"+k).value=a[k]||""});
+ $("f_cat").value=a.cat;$("f_status").value=a.status;
+ $("del").style.display=n?"none":"";
+ $("hf").style.display=(n||(a.status!="In use"&&!a.user))?"none":"";$("iss").style.display=(n||a.user)?"none":"";$("ret").style.display=(n||!a.user)?"none":"";
+ $("hist").innerHTML=n?"":histHTML(a);bc();
+ Array.prototype.forEach.call($("dlg").querySelectorAll("input,select"),function(x){x.disabled=document.body.classList.contains("ro")});$("dlg").showModal();
+}
+var HT="issue",ITN=(function(){try{return localStorage.getItem("itam.itn")||""}catch(e){return""}})();
+function histHTML(a){var L=a.log||[];if(!L.length)return'<span style="color:var(--mute)">No handover history yet.</span>';
+ return'<b>Handover history</b>'+L.map(function(e,i){return{e:e,i:i}}).reverse().map(function(o){var e=o.e;return'<div class="hr"><span>'+esc(e.date)+'</span><span>'+(e.type=="issue"?"Issued to ":"Returned by ")+esc(e.who)+'</span><span>'+esc(e.cond)+'</span><span>IT: '+esc(e.by)+'</span>'+(e.signed?'<span class="ok">Signed '+esc(e.signed)+'</span>':'<span class="pn">'+(e.sent?'Sent '+esc(e.sent)+', awaiting signature':'Not sent yet')+'</span>')+'<button type="button" data-i="'+o.i+'" data-k="p">Print form</button>'+(e.signed?'':'<button type="button" data-i="'+o.i+'" data-k="s">'+(e.sent?'Resend':'Send for signature')+'</button><button type="button" data-i="'+o.i+'" data-k="m">Mark signed</button>')+'</div>'}).join("")}
+function hdOpen(t){HT=t;
+ $("hdt").textContent=(t=="issue"?"Issue to user: ":"Return to IT: ")+cur.tag+" "+cur.name;
+ $("h_who").value=t=="return"?cur.user:"";$("h_dept").value=t=="return"?"":(cur.loc||"");
+ $("h_email").value=t=="return"?(cur.email||""):"";$("h_date").value=new Date().toISOString().slice(0,10);$("h_cond").value="Good";$("h_note").value="";$("h_by").value=ITN;$("hd").showModal()}
+function formHTML(e,a){var iss=e.type=="issue";
+ var r=function(k,v){return'<tr><th>'+k+'</th><td>'+(esc(v)||"-")+'</td></tr>'};
+ return'<div class="pf"><h2>Asset '+(iss?"issue":"return")+' form</h2><div>Date: '+esc(e.date)+'</div>'+barcode(a.tag)+
+ '<table>'+r("Asset tag",a.tag)+r("Device",a.name)+r("Brand / model",a.model)+r("Serial number",a.serial)+'</table>'+
+ '<table>'+r(iss?"Issued to":"Returned by",e.who)+r("Department",e.dept)+r("Condition",e.cond)+r("Accessories and notes",e.note)+r("IT staff",e.by)+'</table>'+
+ '<p>'+(iss?"I confirm that I received the asset above in the condition stated. I will use it for company work and return it to IT when asked.":"I confirm that I returned the asset above to IT in the condition stated.")+'</p>'+
+ '<div class="sig"><div>User signature and date</div><div>IT staff signature and date</div></div></div>'}
+function issueEntry(a){var L=(a.log||[]).filter(function(e){return e.type=="issue"});
+ if(L.length){var e=L[L.length-1];return{type:"issue",who:a.user||e.who,dept:e.dept||a.loc,date:e.date,cond:e.cond,note:e.note,by:e.by,email:e.email}}
+ return{type:"issue",who:a.user,dept:a.loc,date:new Date().toISOString().slice(0,10),cond:"Good",note:"",by:ITN,email:a.email}}
+function printIssue(L){
+ var n=prompt("IT staff name to print on the form (leave empty to write it by hand):",ITN||issueEntry(L[0]).by||"");
+ if(n===null)return;n=n.trim();if(n){ITN=n;try{localStorage.setItem("itam.itn",n)}catch(x){}}
+ $("pl").innerHTML=L.map(function(a,i){var e=issueEntry(a);e.by=n;return'<div'+(i<L.length-1?' style="break-after:page;page-break-after:always"':'')+'>'+formHTML(e,a)+'</div>'}).join("");window.print()}
+function sendForm(en){var a=cur,iss=en.type=="issue";
+ var sub="Asset "+(iss?"issue":"return")+" form to sign: "+a.tag;
+ var body="Hello "+en.who+",\n\nPlease review and sign the asset "+(iss?"issue":"return")+" form for the device below.\n\nAsset tag: "+a.tag+"\nDevice: "+a.name+"\nSerial number: "+(a.serial||"-")+"\nCondition: "+en.cond+"\nNotes: "+(en.note||"-")+"\nDate: "+en.date+"\n\nPlease sign the attached form and send it back to IT, or reply to confirm that you "+(iss?"received":"returned")+" this asset.\n\nIT team: "+en.by;
+ try{navigator.clipboard.writeText(sub+"\n\n"+body)}catch(x){}
+ var l=document.createElement("a");l.href="mailto:"+(en.email||"")+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);l.target="_blank";l.rel="noopener";document.body.appendChild(l);l.click();l.remove();
+ en.sent=new Date().toISOString().slice(0,10);save();$("hist").innerHTML=histHTML(a);list();
+ alert("Email draft opened for "+(en.email||"the user")+". The message text is also copied if your browser allows it. Attach the printed form (Print, then Save as PDF) before you send.")}
+function hdSave(pr){
+ var e={type:HT,who:$("h_who").value.trim(),dept:$("h_dept").value.trim(),date:$("h_date").value,cond:$("h_cond").value,note:$("h_note").value.trim(),by:$("h_by").value.trim(),email:$("h_email").value.trim(),signed:"",sent:""};
+ if(!e.who||!e.by||!e.date){alert("Enter the user name, IT staff name, and date.");return}
+ ITN=e.by;cur.log=(cur.log||[]).concat([e]);
+ if(HT=="issue"){cur.user=e.who;cur.email=e.email;if(e.dept)cur.loc=e.dept;cur.status="In use"}
+ else{cur.user="";cur.loc="IT storage";cur.status=e.cond=="Good"?"In stock":"In repair"}
+ save();var a=cur;$("hd").close();$("dlg").close();list();
+ if(!pr&&e.email&&confirm("Send this form to "+e.who+" for signature now?"))sendForm(e);
+ if(pr){$("pl").innerHTML=formHTML(e,a);window.print()}}
+function bc(){$("bc").innerHTML=labelHTML({tag:$("f_tag").value,name:$("f_name").value})}
+function read(){var a={};F.forEach(function(k){a[k]=$("f_"+k).value.trim()});a.cat=$("f_cat").value;a.status=$("f_status").value;return a}
+function init(){
+ load();
+ $("fs").innerHTML+=ST.map(function(s){return"<option>"+s+"</option>"}).join("");
+ $("f_status").innerHTML=ST.map(function(s){return"<option>"+s+"</option>"}).join("");
+ $("f_cat").innerHTML=CAT.map(function(s){return"<option>"+s+"</option>"}).join("");
+ $("q").addEventListener("input",list);$("fs").addEventListener("change",list);
+ $("q").addEventListener("keydown",function(e){
+  if(e.key!="Enter")return;
+  var v=this.value.trim().toLowerCase(),a=A.filter(function(x){return x.tag.toLowerCase()==v})[0];
+  if(a){open(a);this.value="";list()}});
+ $("rows").addEventListener("click",function(e){var tr=e.target.closest("tr");if(!tr)return;open(A.filter(function(a){return a.tag==tr.dataset.t})[0])});
+ $("add").onclick=function(){open(null)};
+ ["f_tag","f_name"].forEach(function(i){$(i).addEventListener("input",bc)});
+ $("cx").onclick=function(){$("dlg").close()};
+ $("sv").onclick=function(){
+  var a=read();
+  if(!a.tag||!a.name){alert("Enter an asset tag and a device name.");return}
+  var dup=A.filter(function(x){return x.tag==a.tag&&x!==cur}).length;
+  if(dup){alert("Asset tag "+a.tag+" already exists. Use a unique tag.");return}
+  if(a.user&&a.status=="In stock")a.status="In use";
+  a.log=cur?(cur.log||[]):[];
+  if(cur)A[A.indexOf(cur)]=a;else A.push(a);
+  save();$("dlg").close();list();
+ };
+ $("del").onclick=function(){if(cur&&confirm("Delete "+cur.tag+"? This cannot be undone.")){A.splice(A.indexOf(cur),1);save();$("dlg").close();list()}};
+ $("prt").onclick=function(){$("pl").innerHTML=labelHTML(read());window.print()};
+ $("iss").onclick=function(){hdOpen("issue")};$("ret").onclick=function(){hdOpen("return")};
+ $("hcx").onclick=function(){$("hd").close()};
+ $("hf").onclick=function(){if(cur)printIssue([cur])};
+ $("pa").onclick=function(){var L=A.filter(function(a){return a.status=="In use"});if(!L.length){alert("No assets have In use status.");return}printIssue(L)};
+ $("hist").addEventListener("click",function(ev){var bt=ev.target.closest("button[data-i]");if(!bt||!cur)return;var en=(cur.log||[])[+bt.dataset.i],k=bt.dataset.k;if(!en)return;
+  if(k=="p"){$("pl").innerHTML=formHTML(en,cur);window.print()}
+  else if(k=="s"){sendForm(en)}
+  else if(k=="m"){if(confirm("Mark this form as signed by "+en.who+"?")){en.signed=new Date().toISOString().slice(0,10);save();$("hist").innerHTML=histHTML(cur);list()}}
+ });
+ $("hpo").onclick=function(){var e={type:HT,who:$("h_who").value.trim(),dept:$("h_dept").value.trim(),date:$("h_date").value,cond:$("h_cond").value,note:$("h_note").value.trim(),by:$("h_by").value.trim()};if(!e.who){alert("Enter the user name first.");return}$("pl").innerHTML=formHTML(e,cur);window.print()};
+ $("hs").onclick=function(){hdSave(false)};$("hp").onclick=function(){hdSave(true)};
+ $("xl").onclick=async function(){
+  var b=this,msg=function(t){b.textContent=t;setTimeout(function(){b.textContent="Export to Excel"},2500)};
+  try{
+   if(!window.XLSX){msg("Excel library not loaded");return}
+   var d={save:async function(o){var bl=new Blob([o.data],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});var u=URL.createObjectURL(bl);var l=document.createElement("a");l.href=u;l.download=o.filename;document.body.appendChild(l);l.click();l.remove();setTimeout(function(){URL.revokeObjectURL(u)},2000)}};
+   var rows=A.map(function(a){return{"Asset tag":a.tag,"Device":a.name,"Category":a.cat,"Brand / model":a.model,"Serial number":a.serial,"Assigned to":a.user,"Location":a.loc,"Status":a.status,"Purchase date":a.buy,"Warranty ends":a.war}});
+   var log=[];A.forEach(function(a){(a.log||[]).forEach(function(e){log.push({"Date":e.date,"Asset tag":a.tag,"Device":a.name,"Action":e.type=="issue"?"Issued to user":"Returned to IT","User":e.who,"Department":e.dept,"Condition":e.cond,"Notes":e.note,"IT staff":e.by,"User email":e.email||"","Form sent":e.sent||"","Signed on":e.signed||""})})});
+   var wb=XLSX.utils.book_new();
+   var ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:12},{wch:28},{wch:12},{wch:24},{wch:16},{wch:20},{wch:16},{wch:12},{wch:14},{wch:14}];
+   XLSX.utils.book_append_sheet(wb,ws,"Assets");
+   var wl=XLSX.utils.json_to_sheet(log.length?log:[{"Date":"","Asset tag":"","Device":"","Action":"","User":"","Department":"","Condition":"","Notes":"","IT staff":""}]);
+   wl["!cols"]=[{wch:12},{wch:12},{wch:26},{wch:16},{wch:20},{wch:16},{wch:18},{wch:30},{wch:18}];
+   XLSX.utils.book_append_sheet(wb,wl,"Handover log");
+   var buf=XLSX.write(wb,{type:"array",bookType:"xlsx"});
+   await d.save({filename:"it-assets-"+new Date().toISOString().slice(0,10)+".xlsx",data:buf});
+   msg("Saved");
+  }catch(e){msg(e&&e.code=="declined"?"Export cancelled":"Export failed")}
+ };
+ $("csv").onclick=function(){
+  var cols=["tag","name","cat","model","serial","user","loc","status","buy","war"];
+  var t=[cols.join(",")].concat(A.map(function(a){return cols.map(function(c){return'"'+String(a[c]||"").replace(/"/g,'""')+'"'}).join(",")})).join("\n");
+  var b=this;
+  function ok(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy as CSV"},1500)}
+  try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}
+  function fb(){var x=document.createElement("textarea");x.value=t;document.body.appendChild(x);x.select();try{document.execCommand("copy");ok()}catch(e){}x.remove()}
+ };
+ list();
+}
+var UK="itam.users",SK="itam.sess",ME=null,RL={admin:"Admin",staff:"IT staff",viewer:"Viewer"};
+function users(){try{return JSON.parse(localStorage.getItem(UK)||"[]")}catch(e){return[]}}
+function putUsers(u){try{localStorage.setItem(UK,JSON.stringify(u))}catch(e){}}
+async function hash(p,s){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s+":"+p));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+function salt(){var a=new Uint8Array(12);crypto.getRandomValues(a);return Array.from(a).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+function enter(m){ME=m;try{sessionStorage.setItem(SK,m.u)}catch(e){}
+ document.body.classList.remove("lock");document.body.classList.toggle("ro",m.role=="viewer");
+ $("lg_p").value="";$("lg_c").value="";$("lg_e").textContent="";
+ $("who").textContent="Signed in as "+m.u+" ("+RL[m.role]+")";$("usr").style.display=m.role=="admin"?"":"none";ITN=m.u;list()}
+async function login(){var err=$("lg_e");err.textContent="";
+ try{var n=$("lg_u").value.trim().toLowerCase(),p=$("lg_p").value,U=users();
+  if(!n||!p){err.textContent="Enter your username and password.";return}
+  if(!U.length){
+   if(p.length<8){err.textContent="Use at least 8 characters.";return}
+   if(p!=$("lg_c").value){err.textContent="The two passwords do not match.";return}
+   var s=salt();U=[{u:n,s:s,h:await hash(p,s),role:"admin"}];putUsers(U);enter(U[0]);return}
+  var m=U.filter(function(x){return x.u==n})[0];
+  if(!m||await hash(p,m.s)!=m.h){err.textContent="Wrong username or password.";return}
+  enter(m)
+ }catch(e){err.textContent="Sign in failed. Open this page over https and try again."}}
+function renderUsers(){$("ul").innerHTML=users().map(function(x,i){return'<div class="hr"><b>'+esc(x.u)+'</b><span>'+RL[x.role]+'</span><button type="button" data-a="r" data-i="'+i+'">Reset password</button>'+(ME&&x.u==ME.u?'':'<button type="button" data-a="d" data-i="'+i+'">Remove</button>')+'</div>'}).join("")}
+async function addUser(){var n=$("nu").value.trim().toLowerCase(),p=$("np").value,U=users();
+ if(!n||p.length<8){alert("Enter a username and a password of at least 8 characters.");return}
+ if(U.some(function(x){return x.u==n})){alert("That username already exists.");return}
+ var s=salt();U.push({u:n,s:s,h:await hash(p,s),role:$("nr").value});putUsers(U);$("nu").value="";$("np").value="";renderUsers()}
+async function userAct(e){var b=e.target.closest("button[data-a]");if(!b)return;var U=users(),x=U[+b.dataset.i];if(!x)return;
+ if(b.dataset.a=="d"){if(confirm("Remove user "+x.u+"?")){U.splice(+b.dataset.i,1);putUsers(U);renderUsers()}}
+ else{var p=prompt("New password for "+x.u+" (at least 8 characters):");
+  if(p&&p.length>=8){x.s=salt();x.h=await hash(p,x.s);putUsers(U);alert("Password changed.")}else if(p!==null)alert("The password must be at least 8 characters.")}}
+var IMP=null,AL={tag:["assettag","tag","assetnumber","assetid","barcode"],name:["device","devicename","name","assetname"],cat:["category","type"],model:["brandmodel","model","brand"],serial:["serialnumber","serial","sn"],user:["assignedto","user","owner"],loc:["location","locationdepartment","department"],status:["status"],buy:["purchasedate","purchased","buydate"],war:["warrantyends","warranty","warrantyexpiry","warrantyenddate"]};
+function tx(v){return v==null?"":String(v).trim()}
+function pk(L,v){var x=v.toLowerCase();return L.filter(function(c){return c.toLowerCase()==x})[0]||""}
+function nd(v){if(v===""||v==null)return"";
+ if(typeof v=="number"&&v>20000&&v<90000)return new Date(Math.round((v-25569)*864e5)).toISOString().slice(0,10);
+ v=String(v).trim();var m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+ if(m)return m[1]+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[3]).slice(-2);
+ m=v.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
+ if(m){var y=m[3].length==2?"20"+m[3]:m[3];return y+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[1]).slice(-2)}
+ return null}
+function parseSheet(rows){var ok=[],bad=[],warn=[],seen={};
+ rows.forEach(function(r,i){var o={},row=i+2;
+  Object.keys(r).forEach(function(h){var k=h.toLowerCase().replace(/[^a-z0-9]/g,"");for(var f in AL)if(AL[f].indexOf(k)>-1&&o[f]===undefined)o[f]=r[h]});
+  var t=tx(o.tag),n=tx(o.name);
+  if(!Object.keys(r).some(function(h){return tx(r[h])}))return;
+  if(!t){bad.push("Row "+row+": no asset tag");return}
+  if(!n){bad.push("Row "+row+" ("+t+"): no device name");return}
+  if(seen[t.toLowerCase()]){bad.push("Row "+row+" ("+t+"): tag repeated in the file");return}
+  seen[t.toLowerCase()]=1;
+  var a={tag:t,name:n,model:tx(o.model),serial:tx(o.serial),user:tx(o.user),loc:tx(o.loc)};
+  a.cat=pk(CAT,tx(o.cat))||"Other";a.status=pk(ST,tx(o.status))||(a.user?"In use":"In stock");
+  if(a.user&&a.status=="In stock")a.status="In use";
+  a.buy=nd(o.buy);a.war=nd(o.war);
+  if(a.buy===null||a.war===null){warn.push("Row "+row+" ("+t+"): a date was not understood and was left empty");a.buy=a.buy||"";a.war=a.war||""}
+  ok.push(a)});
+ return{ok:ok,bad:bad,warn:warn}}
+function showImp(){var ex={},N=0,E=0,h;
+ A.forEach(function(a){ex[a.tag.toLowerCase()]=1});
+ IMP.ok.forEach(function(a){ex[a.tag.toLowerCase()]?E++:N++});
+ h='<b>'+IMP.ok.length+' rows ready:</b> '+N+' new, '+E+' already in the register.';
+ if(IMP.bad.length)h+='<div class="exp" style="margin-top:6px">'+IMP.bad.length+' rows will be skipped:<br>'+IMP.bad.slice(0,8).map(esc).join('<br>')+(IMP.bad.length>8?'<br>and more':'')+'</div>';
+ if(IMP.warn.length)h+='<div class="pn" style="margin-top:6px">'+IMP.warn.slice(0,5).map(esc).join('<br>')+(IMP.warn.length>5?'<br>and more':'')+'</div>';
+ $("imr").innerHTML=h;$("imgo").disabled=!IMP.ok.length}
+function impInit(){
+ $("imp").onclick=function(){$("imf").value="";$("imr").innerHTML="";IMP=null;$("imgo").disabled=true;$("im").showModal()};
+ $("imc").onclick=function(){$("im").close()};
+ $("imf").onchange=async function(){var f=this.files[0];if(!f)return;
+  try{if(!window.XLSX)throw 0;var wb=XLSX.read(await f.arrayBuffer(),{type:"array",raw:true});
+   IMP=parseSheet(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:""}));showImp()}
+  catch(e){IMP=null;$("imgo").disabled=true;$("imr").innerHTML='<span class="exp">Could not read this file. Use a .csv or .xlsx file with a header row.</span>'}};
+ $("imgo").onclick=function(){if(!IMP)return;var upd=$("imm").value=="upd",add=0,up=0,sk=0;
+  IMP.ok.forEach(function(a){var old=A.filter(function(x){return x.tag.toLowerCase()==a.tag.toLowerCase()})[0];
+   if(old){if(upd){a.log=old.log||[];a.email=old.email;A[A.indexOf(old)]=a;up++}else sk++}
+   else{a.log=[];A.push(a);add++}});
+  save();list();IMP=null;$("imgo").disabled=true;
+  $("imr").innerHTML='<b>Done.</b> '+add+' added, '+up+' updated, '+sk+' skipped.'};
+ $("imt").onclick=function(){var b=this,t="Asset tag,Device name,Category,Brand / model,Serial number,Assigned to,Location / department,Status,Purchase date,Warranty ends\nAST-0100,Dell Latitude 5440,Laptop,Dell Latitude 5440,SN12345,Rina Putri,Finance,In use,2025-03-01,2028-03-01";
+  function ok(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy template"},1500)}
+  try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}
+  function fb(){var x=document.createElement("textarea");x.value=t;document.body.appendChild(x);x.select();try{document.execCommand("copy");ok()}catch(e){}x.remove()}}}
+function authInit(){var U=users(),setup=!U.length;
+ $("lg_t").textContent=setup?"Create admin account":"Sign in";
+ $("lg_s").textContent=setup?"No accounts yet. Create the first admin account.":"IT Asset Register";
+ $("lg_cw").style.display=setup?"":"none";$("lg_go").textContent=setup?"Create account":"Sign in";
+ $("lg_go").onclick=login;
+ ["lg_u","lg_p","lg_c"].forEach(function(i){$(i).onkeydown=function(e){if(e.key=="Enter")login()}});
+ $("out").onclick=function(){try{sessionStorage.removeItem(SK)}catch(e){}location.reload()};
+ $("usr").onclick=function(){renderUsers();$("ud").showModal()};$("uc").onclick=function(){$("ud").close()};
+ $("ua").onclick=addUser;$("ul").onclick=userAct;
+ var s=null;try{s=sessionStorage.getItem(SK)}catch(e){}
+ var m=U.filter(function(x){return x.u==s})[0];if(m)enter(m)}
+init();
+authInit();
+impInit();
+</script>
+</body>
+</html>
